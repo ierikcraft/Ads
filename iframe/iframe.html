@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Viewer</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
+
+        #adContainer {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            position: relative;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Adapt to container */
+        }
+
+        .ad-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 2px 4px;
+            font-size: 8px;
+            border-radius: 2px;
+            pointer-events: none;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="adContainer">
+        <!-- Ad Image will be injected here -->
+    </div>
+
+    <script type="module">
+        import { db } from '../firebase-config.js';
+        import {
+            collection,
+            query,
+            where,
+            getDocs,
+            limit,
+            updateDoc,
+            increment,
+            doc
+        } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+        const container = document.getElementById('adContainer');
+
+        async function loadRandomAd() {
+            const adsRef = collection(db, "ads");
+            const rand = Math.random();
+
+            // Try to find an ad with random >= rand
+            let q = query(adsRef, where("random", ">=", rand), limit(1));
+            let querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                // If no ad found (e.g. rand was very high), wrap around
+                q = query(adsRef, where("random", "<", rand), limit(1));
+                querySnapshot = await getDocs(q);
+            }
+
+            if (!querySnapshot.empty) {
+                const adDoc = querySnapshot.docs[0];
+                const adData = adDoc.data();
+
+                renderAd(adDoc.id, adData);
+                recordView(adDoc.id);
+            } else {
+                container.innerHTML = '<p style="color: #ccc; font-family: sans-serif; font-size: 10px; text-align: center;">No ads available</p>';
+            }
+        }
+
+        function renderAd(id, data) {
+            container.innerHTML = `
+                <img src="${data.image}" alt="${data.title}">
+                <div class="ad-badge">Ads by AdGestor</div>
+            `;
+
+            container.onclick = () => {
+                handleClick(id, data.link);
+            };
+        }
+
+        async function recordView(id) {
+            const adRef = doc(db, "ads", id);
+            await updateDoc(adRef, {
+                views: increment(1)
+            });
+        }
+
+        async function handleClick(id, link) {
+            const adRef = doc(db, "ads", id);
+            // Fire and forget update (optimistic navigation)
+            updateDoc(adRef, {
+                clicks: increment(1)
+            }).catch(e => console.error("Error tracking click", e));
+
+            window.open(link, '_blank');
+        }
+
+        loadRandomAd();
+    </script>
+</body>
+
+</html>

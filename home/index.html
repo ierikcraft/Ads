@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdGestor - Dashboard</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+        }
+
+        .ad-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .ad-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .ad-item:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .ad-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .ad-info {
+            flex-grow: 1;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 0.5rem;
+        }
+
+        .plan-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .pricing-card {
+            text-align: center;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 1rem 0;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #666;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container animate-fade-in">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+            <h1>AdGestor <span style="color: var(--primary-color);">Dashboard</span></h1>
+            <nav>
+                <a href="../iframe/index.html" class="btn">Generar Iframe</a>
+            </nav>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Create Ad Section -->
+            <section class="card">
+                <h2>Crear Nuevo Anuncio</h2>
+                <p style="margin-bottom: 1.5rem; color: #aaa;">Sube tu creatividad y llega a miles de personas.</p>
+
+                <form id="createAdForm">
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="adTitle" placeholder="Nombre de la campaña" required>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="url" id="adLink" placeholder="Enlace de destino (ej: https://mitienda.com)"
+                            required>
+                    </div>
+
+                    <div class="upload-area" id="dropZone">
+                        <p>Arrastra tu imagen aquí o haz click para subir</p>
+                        <input type="file" id="adImage" accept="image/*" style="display: none;">
+                        <div id="previewContainer" class="ad-preview"></div>
+                    </div>
+
+                    <p style="margin: 1rem 0; font-size: 0.9rem; color: #888;">
+                        * Los anuncios se guardan en el plan GRATIS (máx 10.000 visualizaciones).
+                    </p>
+
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Publicar Anuncio</button>
+                </form>
+            </section>
+
+            <!-- My Ads / Plans Section -->
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <section class="card">
+                    <h2>Mis Anuncios</h2>
+                    <div id="adsList" style="margin-top: 1.5rem; max-height: 400px; overflow-y: auto;">
+                        <p style="text-align: center; color: #666;">Cargando anuncios...</p>
+                    </div>
+                </section>
+
+                <section class="card pricing-card">
+                    <h2>Plan Premium</h2>
+                    <p style="color: #aaa;">Impulsa tus anuncios al siguiente nivel.</p>
+                    <div class="price">
+                        3€ <span class="old-price">5€</span>
+                    </div>
+                    <p style="margin-bottom: 1rem;">Pago único. Sin límites.</p>
+                    <button class="btn" disabled
+                        style="background: #333; color: #666; cursor: not-allowed;">Próximamente</button>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script type="module">
+        import { db } from '../firebase-config.js';
+        import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+        // Image Handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('adImage');
+        const previewContainer = document.getElementById('previewContainer');
+        let base64Image = '';
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    base64Image = e.target.result;
+                    previewContainer.innerHTML = `<img src="${base64Image}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Form Submission
+        const createAdForm = document.getElementById('createAdForm');
+        createAdForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!base64Image) {
+                alert('Por favor selecciona una imagen para el anuncio.');
+                return;
+            }
+
+            const title = document.getElementById('adTitle').value;
+            const link = document.getElementById('adLink').value;
+
+            try {
+                const docRef = await addDoc(collection(db, "ads"), {
+                    title: title,
+                    link: link,
+                    image: base64Image,
+                    clicks: 0,
+                    views: 0,
+                    random: Math.random(),
+                    createdAt: serverTimestamp(),
+                    plan: 'free'
+                });
+
+                alert('Anuncio creado con éxito!');
+                createAdForm.reset();
+                previewContainer.innerHTML = '';
+                base64Image = '';
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert('Error al crear el anuncio: ' + e.message);
+            }
+        });
+
+        // Load Ads
+        const adsList = document.getElementById('adsList');
+        const q = query(collection(db, "ads"), orderBy("createdAt", "desc"));
+
+        onSnapshot(q, (snapshot) => {
+            adsList.innerHTML = '';
+            if (snapshot.empty) {
+                adsList.innerHTML = '<p style="text-align: center; color: #666;">No hay anuncios creados aún.</p>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const div = document.createElement('div');
+                div.className = 'ad-item';
+                div.innerHTML = `
+                    <img src="${data.image}" alt="${data.title}">
+                    <div class="ad-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>${data.title}</h3>
+                            <span class="plan-badge">${data.plan}</span>
+                        </div>
+                        <a href="${data.link}" target="_blank" style="font-size: 0.8rem; color: var(--secondary-color);">${data.link}</a>
+                        <div class="stats">
+                            <span>🖱️ ${data.clicks || 0} Clicks</span>
+                            <span>👁️ ${data.views || 0} Visualizaciones</span>
+                        </div>
+                    </div>
+                `;
+                adsList.appendChild(div);
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdGestor - Generador de Iframe</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .generator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .generator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-area {
+            background: #000;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            overflow: hidden;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            color: #ccc;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container animate-fade-in">
+        <header style="margin-bottom: 2rem;">
+            <a href="../home/index.html" style="color: #aaa; font-size: 0.9rem;">&larr; Volver al Dashboard</a>
+            <h1 style="margin-top: 0.5rem;">Generador de <span style="color: var(--secondary-color);">Iframe</span></h1>
+        </header>
+
+        <div class="generator-grid">
+            <section class="card">
+                <h2>Configuración</h2>
+                <div style="margin-top: 1rem;">
+                    <label>Tipo de Anuncio</label>
+                    <select id="adType">
+                        <option value="banner">Banner (728x90)</option>
+                        <option value="square">Cuadrado (300x250)</option>
+                        <option value="sky">Rascacielos (160x600)</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+
+                    <div id="customSize" style="display: none; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label>Ancho (px)</label>
+                            <input type="number" id="customWidth" value="300">
+                        </div>
+                        <div>
+                            <label>Alto (px)</label>
+                            <input type="number" id="customHeight" value="250">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Código para tu Web</h2>
+                <div class="code-block">
+                    <button class="copy-btn" id="copyBtn">Copiar</button>
+                    <code id="iframeCode">&lt;iframe src="..."&gt;&lt;/iframe&gt;</code>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Previsualización</h3>
+                <div class="preview-area" id="previewContainer">
+                    <!-- Iframe will be injected here -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        const adTypeSelect = document.getElementById('adType');
+        const customSizeDiv = document.getElementById('customSize');
+        const customWidthInput = document.getElementById('customWidth');
+        const customHeightInput = document.getElementById('customHeight');
+        const iframeCodeElement = document.getElementById('iframeCode');
+        const previewContainer = document.getElementById('previewContainer');
+        const copyBtn = document.getElementById('copyBtn');
+
+        const baseUrl = window.location.origin + '/iframe/iframe.html'; // Adjust for production if needed
+
+        function updateGenerator() {
+            let width, height;
+            const type = adTypeSelect.value;
+
+            if (type === 'custom') {
+                customSizeDiv.style.display = 'grid';
+                width = customWidthInput.value;
+                height = customHeightInput.value;
+            } else {
+                customSizeDiv.style.display = 'none';
+                if (type === 'banner') { width = 728; height = 90; }
+                else if (type === 'square') { width = 300; height = 250; }
+                else if (type === 'sky') { width = 160; height = 600; }
+            }
+
+            // Generate Code
+            // Using absolute path for local development might be tricky, but let's assume relative path works for now or construct the full URL
+            // Ensure the URL points to iframe/iframe.html
+            // If running locally with Live Server or similar, origin is localhost:port.
+            // If deployed, it will be the domain.
+
+            // NOTE: In the user request, they mentioned https://adgestor.vercel.app/iframe/iframe.html
+            // I should use that as base if I want it to be "production ready" code, BUT for local testing it might break if not deployed.
+            // However, the user asked for the iframe to be ABOUT that url. 
+            // "I el iframe sera sobre https://adgestor.vercel.app/iframe/iframe.html"
+            // So I will use that URL for the code, but maybe use relative for preview?
+            // Actually, the user says "que muestrara un anuncio random".
+            // Let's use the requested URL for the code generation.
+
+            const iframeUrl = "https://adgestor.vercel.app/iframe/iframe.html";
+            // const iframeUrl = "../iframe/iframe.html"; // For local preview
+
+            const code = `<iframe src="${iframeUrl}" width="${width}" height="${height}" frameborder="0" scrolling="no"></iframe>`;
+
+            iframeCodeElement.textContent = code;
+
+            // Update Preview (For local preview we need to point to the actual local file if possible, or use the deployed one if it exists)
+            // Since we are creating the file now, the deployed one on vercel might not have the new code yet.
+            // To make preview work LOCALLY, we should point to the local file.
+            // But the generated code should point to production IF the user intends to deploy there.
+            // I'll stick to a relative path for the PREVIEW to ensure it works now, and the hardcoded URL for the code snippet as requested.
+
+            // Actually, let's use relative path for preview.
+            previewContainer.innerHTML = `<iframe src="iframe.html" width="${width}" height="${height}" frameborder="0" scrolling="no" style="background: white;"></iframe>`;
+        }
+
+        adTypeSelect.addEventListener('change', updateGenerator);
+        customWidthInput.addEventListener('input', updateGenerator);
+        customHeightInput.addEventListener('input', updateGenerator);
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(iframeCodeElement.textContent).then(() => {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copiado!';
+                setTimeout(() => copyBtn.textContent = originalText, 2000);
+            });
+        });
+
+        // Initialize
+        updateGenerator();
+    </script>
+</body>
+
+</html>

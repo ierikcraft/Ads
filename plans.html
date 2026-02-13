@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elige tu Plan de Anuncios</title>
+    <style>
+        /* Estilos Generales */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: #666;
+            margin-bottom: 50px;
+        }
+
+        /* Contenedor de las tarjetas */
+        .pricing-table {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Diseño de la Tarjeta */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 300px;
+            transition: transform 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Estilos específicos para el plan de pago (Destacado) */
+        .card.premium {
+            border: 2px solid #4CAF50;
+            background: #fff;
+        }
+
+        .badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Tipografía interna */
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            color: #222;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .period {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+            text-align: left;
+            flex-grow: 1; /* Empuja el botón hacia abajo */
+        }
+
+        .features li {
+            margin-bottom: 15px;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Botones */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px 0;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+            transition: background 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #ddd;
+            color: #555;
+        }
+
+        .btn-outline:hover {
+            border-color: #333;
+            color: #333;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            box-shadow: 0 4px 6px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: #43a047;
+        }
+
+        /* Texto grande para el alcance */
+        .reach {
+            font-weight: bold;
+            color: #000;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Maximiza tu Alcance</h1>
+        <p class="subtitle">Selecciona el plan que mejor se adapte a tus necesidades de publicidad.</p>
+
+        <div class="pricing-table">
+            
+            <div class="card">
+                <div class="plan-name">Básico</div>
+                <div class="price">0€</div>
+                <div class="period">Para siempre</div>
+                
+                <ul class="features">
+                    <li>Alcance de <span class="reach">10.000</span> personas</li>
+                    <li>Anuncios estándar</li>
+                    <li>Soporte por email básico</li>
+                </ul>
+
+                <button class="btn btn-outline" onclick="seleccionarPlan('Gratis')">Elegir Gratis</button>
+            </div>
+
+            <div class="card premium">
+                <div class="badge">Más Popular</div>
+                <div class="plan-name">Pro</div>
+                <div class="price">3,00€</div>
+                <div class="period">Pago único</div>
+                
+                <ul class="features">
+                    <li>Alcance de <span class="reach">100.000</span> personas</li>
+                    <li>Prioridad en visualización</li>
+                    <li>Estadísticas detalladas</li>
+                    <li>Sin pagos mensuales</li>
+                </ul>
+
+                <button class="btn btn-primary" onclick="seleccionarPlan('Pago')">Comprar Ahora</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function seleccionarPlan(tipo) {
+            if(tipo === 'Pago') {
+                // Aquí iría la redirección a tu pasarela de pago (Stripe, PayPal, etc.)
+                alert("Has seleccionado el plan de 3,00€. Redirigiendo a la pasarela de pago...");
+            } else {
+                alert("Has seleccionado el plan Gratis. ¡Tu campaña comienza ahora!");
+            }
+        }
+    </script>
+
+</body>
+</html>
