@@ -274,8 +274,14 @@
             console.error("Error loading ads:", error);
             // Check for missing index error
             if (error.message.includes("The query requires an index")) {
-                console.log("Please create the index using the link in the console.");
-                alert("Error de índice en Firebase. Abre la consola (F12) para ver el enlace de creación.");
+                console.log("Creating index link in console...");
+                adsList.innerHTML = `
+                   <div style="text-align: center; padding: 2rem;">
+                       <p style="color: var(--primary-color); margin-bottom: 1rem;">⚠️ Configuración necesaria</p>
+                       <p style="color: #aaa; margin-bottom: 1rem;">Haz clic en el enlace que aparece en la consola (F12) para habilitar los filtros.</p>
+                       <small style="color: #666;">Error: Índice faltante</small>
+                   </div>
+               `;
             } else {
                 adsList.innerHTML = `<p style="text-align: center; color: red;">Error cargando anuncios: ${error.message}</p>`;
             }
