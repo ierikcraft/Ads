@@ -74,13 +74,14 @@
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
         const userName = urlParams.get('name');
-        const userMail = urlParams.get('mail');
+        // Handle both 'mail' and 'email' parameters
+        const userMail = urlParams.get('mail') || urlParams.get('email');
 
-        if (userId && userName && userMail) {
+        if (userId) {
             // Save to localStorage
             localStorage.setItem('user_id', userId);
-            localStorage.setItem('user_name', userName);
-            localStorage.setItem('user_mail', userMail);
+            if (userName) localStorage.setItem('user_name', userName);
+            if (userMail) localStorage.setItem('user_mail', userMail);
 
             // Redirect to dashboard
             window.location.href = 'home/index.html';
