@@ -174,9 +174,10 @@
     <script src="../script.js"></script>
     <script type="module">
         import { db } from '../firebase-config.js';
-        import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
         // Display User Name
+        const userId = localStorage.getItem('user_id');
         const userName = localStorage.getItem('user_name') || 'Usuario';
         document.getElementById('userNameDisplay').textContent = userName;
 
@@ -224,7 +225,8 @@
                     views: 0,
                     random: Math.random(),
                     createdAt: serverTimestamp(),
-                    plan: 'free'
+                    plan: 'free',
+                    userId: userId // Store user ID
                 });
 
                 alert('Anuncio creado con éxito!');
@@ -239,7 +241,7 @@
 
         // Load Ads
         const adsList = document.getElementById('adsList');
-        const q = query(collection(db, "ads"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "ads"), where("userId", "==", userId), orderBy("createdAt", "desc"));
 
         onSnapshot(q, (snapshot) => {
             adsList.innerHTML = '';
