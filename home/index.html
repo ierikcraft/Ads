@@ -270,6 +270,15 @@
                 `;
                 adsList.appendChild(div);
             });
+        }, (error) => {
+            console.error("Error loading ads:", error);
+            // Check for missing index error
+            if (error.message.includes("The query requires an index")) {
+                console.log("Please create the index using the link in the console.");
+                alert("Error de índice en Firebase. Abre la consola (F12) para ver el enlace de creación.");
+            } else {
+                adsList.innerHTML = `<p style="text-align: center; color: red;">Error cargando anuncios: ${error.message}</p>`;
+            }
         });
     </script>
 </body>
