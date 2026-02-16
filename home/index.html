@@ -153,7 +153,7 @@
                 <section class="card">
                     <h2>Mis Anuncios</h2>
                     <div id="adsList" style="margin-top: 1.5rem; max-height: 400px; overflow-y: auto;">
-                        <p style="text-align: center; color: #666;">Cargando anuncios...</p>
+                        <p id="loadingMessage" style="text-align: center; color: #666;">Cargando anuncios...</p>
                     </div>
                 </section>
 
@@ -180,6 +180,10 @@
         const userId = localStorage.getItem('user_id');
         const userName = localStorage.getItem('user_name') || 'Usuario';
         document.getElementById('userNameDisplay').textContent = userName;
+
+        // Debug info
+        const loadingMsg = document.getElementById('loadingMessage');
+        if (loadingMsg) loadingMsg.textContent = `Cargando anuncios para ID: ${userId}...`;
 
         // Image Handling
         const dropZone = document.getElementById('dropZone');
