@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +22,7 @@
             font-size: 4rem;
             margin-bottom: 1rem;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
@@ -50,22 +52,48 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <section class="hero animate-fade-in">
             <h1>AdGestor</h1>
             <p>La plataforma publicitaria del futuro. Llega a milies de personas con un solo click.</p>
-            
+
             <div class="features">
                 <div class="feature">🚀 10.000 Visualizaciones Gratis</div>
                 <div class="feature">⚡ Sin Complicaciones</div>
             </div>
 
-            <a href="home/index.html" class="btn" style="padding: 1rem 3rem; font-size: 1.2rem;">Empezar Ahora</a>
+            <a href="https://account.erikhub.com/?from=adgestor" class="btn"
+                style="padding: 1rem 3rem; font-size: 1.2rem;">Empezar Ahora</a>
         </section>
     </div>
 
+    <script>
+        // Check for login parameters in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+        const userName = urlParams.get('name');
+        const userMail = urlParams.get('mail');
+
+        if (userId && userName && userMail) {
+            // Save to localStorage
+            localStorage.setItem('user_id', userId);
+            localStorage.setItem('user_name', userName);
+            localStorage.setItem('user_mail', userMail);
+
+            // Redirect to dashboard
+            window.location.href = 'home/index.html';
+        }
+
+        // If already logged in, change CTA to Dashboard
+        if (localStorage.getItem('user_id')) {
+            document.querySelector('.btn').href = 'home/index.html';
+            document.querySelector('.btn').textContent = 'Ir al Dashboard';
+        }
+    </script>
+
     <script src="script.js"></script>
 </body>
+
 </html>
- 

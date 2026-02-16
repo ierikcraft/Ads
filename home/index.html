@@ -102,12 +102,18 @@
             font-size: 1.2rem;
         }
     </style>
+    <script>
+        // Check authentication
+        if (!localStorage.getItem('user_id')) {
+            window.location.href = '../index.html';
+        }
+    </script>
 </head>
 
 <body>
     <div class="container animate-fade-in">
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
-            <h1>AdGestor <span style="color: var(--primary-color);">Dashboard</span></h1>
+            <h1>Hola, <span id="userNameDisplay" style="color: var(--primary-color);">Usuario</span></h1>
             <nav>
                 <a href="../iframe/index.html" class="btn">Generar Iframe</a>
             </nav>
@@ -169,6 +175,10 @@
     <script type="module">
         import { db } from '../firebase-config.js';
         import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+        // Display User Name
+        const userName = localStorage.getItem('user_name') || 'Usuario';
+        document.getElementById('userNameDisplay').textContent = userName;
 
         // Image Handling
         const dropZone = document.getElementById('dropZone');
