@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ad Viewer</title>
+    <title>AdGestor - No Disponible</title>
     <style>
         body,
         html {
@@ -13,116 +13,100 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: transparent;
+            box-sizing: border-box;
         }
 
-        #adContainer {
+        #errorContainer {
             width: 100%;
             height: 100%;
-            cursor: pointer;
-            position: relative;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 0, 85, 0.25);
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(5, 5, 5, 0.95));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8px;
+            gap: 4px;
+            overflow: hidden;
         }
 
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* Adapt to container */
+        .icon {
+            font-size: 20px;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 85, 0.4));
+            animation: pulse 2s infinite;
         }
 
-        .ad-badge {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            background: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            padding: 2px 4px;
-            font-size: 8px;
-            border-radius: 2px;
-            pointer-events: none;
-            font-family: sans-serif;
+        .title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #ff0055;
+            letter-spacing: -0.01em;
+        }
+
+        .message {
+            font-size: 10px;
+            color: #aaaaaa;
+            max-width: 90%;
+            line-height: 1.3;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+            100% { opacity: 0.8; transform: scale(1); }
+        }
+
+        /* Responsive adaptations for different iframe dimensions */
+        
+        /* 1. Horizontal banner (e.g. 728x90) */
+        @media (max-height: 100px) {
+            #errorContainer {
+                flex-direction: row;
+                gap: 12px;
+                padding: 4px 16px;
+                justify-content: center;
+            }
+            .icon {
+                font-size: 16px;
+            }
+            .title {
+                font-size: 12px;
+            }
+            .message {
+                font-size: 10px;
+                max-width: none;
+            }
+        }
+
+        /* 2. Micro/Mini widgets or very narrow banners */
+        @media (max-width: 150px) {
+            .icon {
+                font-size: 16px;
+            }
+            .title {
+                font-size: 11px;
+            }
+            .message {
+                font-size: 9px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div id="adContainer">
-        <!-- Ad Image will be injected here -->
+    <div id="errorContainer">
+        <span class="icon">🚫</span>
+        <span class="title">AdGestor</span>
+        <span class="message">Ya no está disponible</span>
     </div>
-
-    <script type="module">
-        import { db } from '../firebase-config.js';
-        import {
-            collection,
-            query,
-            where,
-            getDocs,
-            limit,
-            updateDoc,
-            increment,
-            doc
-        } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-        const container = document.getElementById('adContainer');
-
-        async function loadRandomAd() {
-            const adsRef = collection(db, "ads");
-            const rand = Math.random();
-
-            // Try to find an ad with random >= rand
-            let q = query(adsRef, where("random", ">=", rand), limit(1));
-            let querySnapshot = await getDocs(q);
-
-            if (querySnapshot.empty) {
-                // If no ad found (e.g. rand was very high), wrap around
-                q = query(adsRef, where("random", "<", rand), limit(1));
-                querySnapshot = await getDocs(q);
-            }
-
-            if (!querySnapshot.empty) {
-                const adDoc = querySnapshot.docs[0];
-                const adData = adDoc.data();
-
-                renderAd(adDoc.id, adData);
-                recordView(adDoc.id);
-            } else {
-                container.innerHTML = '<p style="color: #ccc; font-family: sans-serif; font-size: 10px; text-align: center;">No ads available</p>';
-            }
-        }
-
-        function renderAd(id, data) {
-            container.innerHTML = `
-                <img src="${data.image}" alt="${data.title}">
-                <div class="ad-badge">Ads by AdGestor</div>
-            `;
-
-            container.onclick = () => {
-                handleClick(id, data.link);
-            };
-        }
-
-        async function recordView(id) {
-            const adRef = doc(db, "ads", id);
-            await updateDoc(adRef, {
-                views: increment(1)
-            });
-        }
-
-        async function handleClick(id, link) {
-            const adRef = doc(db, "ads", id);
-            // Fire and forget update (optimistic navigation)
-            updateDoc(adRef, {
-                clicks: increment(1)
-            }).catch(e => console.error("Error tracking click", e));
-
-            window.open(link, '_blank');
-        }
-
-        loadRandomAd();
-    </script>
 </body>
 
 </html>
